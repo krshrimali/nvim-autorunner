@@ -77,7 +77,7 @@ function A.edit_file()
     end
     vim.api.nvim_command("e " .. A.command)
   else
-    vim.api.nvim_notify("Command not registered, use :AutoRunAddCommand", vim.log.levels.ERROR, {})
+    vim.api.nvim_notify("Command not registered, use :AutoRunnerAddCommand", vim.log.levels.ERROR, {})
   end
 end
 
@@ -85,7 +85,7 @@ function A.clear_buffer()
   -- if vim.api.nvim_get_current_buf() == A.autorun_bufnr then
   -- vim.api.nvim_buf_detach()
   if A.autorun_bufnr == -1 then
-    vim.api.nvim_notify("Buffer not opened yet, do :AutoRunToggle or :AutoRun", vim.log.levels.ERROR, {})
+    vim.api.nvim_notify("Buffer not opened yet, do :AutoRunnerToggle or :AutoRunnerRun", vim.log.levels.ERROR, {})
     return
   end
   vim.api.nvim_buf_delete(A.autorun_bufnr, {
@@ -101,7 +101,7 @@ end
 
 function A.clear_command_and_buffer()
   A.command = ""
-  vim.cmd("AutoRunClearBuffer")
+  vim.cmd("AutoRunnerClearBuffer")
 end
 
 function A.print_command()
