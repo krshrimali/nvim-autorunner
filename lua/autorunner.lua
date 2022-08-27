@@ -8,7 +8,7 @@ local function call_autorun(command, data)
 		vim.cmd("setlocal signcolumn=no nonumber")
 	end
 	if A.autorun_bufnr == -1 then
-		vim.api.nvim_command("vnew | setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile")
+		vim.api.nvim_command("vnew | setlocal nobuflisted buftype=nofile noswapfile")
 		A.autorun_bufnr = vim.api.nvim_get_current_buf()
 	end
 	vim.api.nvim_buf_call(A.autorun_bufnr, change_settings)
