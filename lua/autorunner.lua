@@ -1,6 +1,6 @@
 A = {}
 A.autorun_bufnr = -1
-A.autorun_data = ""
+A.autorun_data = {}
 A.command = "./.buildme.sh"
 
 local function call_autorun(command, data)
@@ -13,16 +13,18 @@ local function call_autorun(command, data)
 	end
 	vim.api.nvim_buf_call(A.autorun_bufnr, change_settings)
 	local append_data = function(_, _data)
-		if _data then
-			A.autorun_data = _data
+		if #_data ~= 0 then
+			for _, l in ipairs(_data) do
+				table.insert(A.autorun_data, l)
+			end
 		end
 		vim.api.nvim_buf_set_lines(A.autorun_bufnr, -1, -1, false, _data)
 	end
 
-	-- TODO: The message here is personalized, for the plugin, I need to allow users to set it.
+	-- FIXME: The message here is personalized, for the plugin, I need to allow users to set it.
 	vim.api.nvim_buf_set_lines(A.autorun_bufnr, 0, -1, false, { "OUTPUT from " .. A.command })
-	if data ~= "" then
-		vim.api.nvim_buf_set_lines(A.autorun_bufnr, -1, -1, false, data)
+	if #data ~= 0 then
+		vim.api.nvim_buf_set_lines(A.autorun_bufnr, 0, -1, false, data)
 		A.autorun_data = data
 	else
 		vim.fn.jobstart(command, {
@@ -45,7 +47,7 @@ end
 -- })
 
 function A.run()
-	A.autorun_data = ""
+	A.autorun_data = {}
 	vim.api.nvim_create_augroup("autorun-krs", { clear = true })
 	call_autorun(A.command, A.autorun_data)
 end
@@ -62,21 +64,9 @@ function A.toggle()
 	end
 
 	if A.autorun_bufnr == -1 then
-		-- If it's not -1, then it means a window is already opened, so just ignore
-		-- if A.autorun_data ~= "" then
-		-- 	call_autorun("", A.autorun_data)
-		-- else
-		-- 	call_autorun(A.command, "")
-		-- end
 		call_autorun(A.command, A.autorun_data)
-		return
 	elseif check_not_in_bufs_list(A.autorun_bufnr) then
 		A.autorun_bufnr = -1
-		--   if A.autorun_data ~= "" then
-		-- 	call_autorun("", A.autorun_data)
-		-- else
-		-- 	call_autorun(A.command, "")
-		-- end
 		call_autorun(A.command, A.autorun_data)
 	else
 		vim.api.nvim_notify("Buffer already opened with bufnr: " .. A.autorun_bufnr, vim.log.levels.INFO, {})
@@ -93,13 +83,13 @@ function A.edit_file()
 		end
 		vim.api.nvim_command("e " .. A.command)
 	else
-		vim.api.nvim_notify("Command not registered, use :AutoRunnerAddCommand", vim.log.levels.ERROR, {})
+		vim.api.nvim_notify("Command not registered, use .add_command()", vim.log.levels.ERROR, {})
 	end
 end
 
 function A.clear_buffer()
 	if A.autorun_bufnr == -1 then
-		vim.api.nvim_notify("Buffer not opened yet, do :AutoRunnerToggle or :AutoRunnerRun", vim.log.levels.ERROR, {})
+		vim.api.nvim_notify("Buffer not opened yet, do .toggle() or .run()", vim.log.levels.ERROR, {})
 		return
 	end
 	vim.api.nvim_buf_delete(A.autorun_bufnr, {
@@ -115,11 +105,17 @@ end
 
 function A.clear_command_and_buffer()
 	A.command = ""
-	vim.cmd("AutoRunnerClearBuffer")
+	A.clear_buffer()
 end
 
 function A.print_command()
 	vim.api.nvim_notify("Command available: " .. A.command, vim.log.levels.INFO, {})
 end
+
+-- Global mappings
+local opts = { noremap = true, silent = true }
+
+vim.keymap.set("n", "q", A.clear_buffer, opts)
+vim.keymap.set("n", "<Esc>", A.clear_buffer, opts)
 
 return A
