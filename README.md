@@ -10,6 +10,33 @@ See the animation below for a quick demo.
 
 The plugin is also explained [here on my YouTube Channel](https://youtu.be/1tR_mrQXhJg).
 
+## Setup/Installation
+
+If you are using Packer, add:
+
+```lua
+use "krshrimali/nvim-autorunner"
+-- depends on nvim-notify
+use "rcarriga/nvim-notify"
+```
+
+Please use a similar pattern for other plugin managers. Currently, the plugin doesn't have a `setup` function, but I'm working on that. For now, just adding it to your package should enable the features.
+
+**Adding to your shortcuts**: I like using `whichkey` for this, but feel free to have something else based on your needs. Checkout my whichkey shortcuts [here](https://github.com/krshrimali/nvim/blob/master/lua/user/whichkey.lua#L114).
+
+```lua
+a = {
+  name = "AutoRunner",
+  r = { "<cmd>AutoRunnerRun<cr>", "Run the command" },
+  t = { "<cmd>AutoRunnerToggle<cr>", "Toggle output window" },
+  e = { "<cmd>AutoRunnerEditFile<cr>", "Edit build file (if available in runtime directory)" },
+  a = { "<cmd>AutoRunnerAddCommand<cr>", "Add/change command" },
+  c = { "<cmd>AutoRunnerClearCommand<cr>", "Clear command" },
+  C = { "<cmd>AutoRunnerClearAll<cr>", "Clear all (command and buffers)" },
+  p = { "<cmd>AutoRunnerPrintCommand<cr>", "Print command" },
+},
+```
+
 ## Features
 
 ### `lua require("autorunner").run()`
@@ -44,33 +71,6 @@ The plugin is also explained [here on my YouTube Channel](https://youtu.be/1tR_m
 
 - This shows you the output of the "last time you ran the command".
 - If a window is already opened, this command will do nothing and show you an error with the buffer number. Please call the `.clear_buffer()` if you want to close that buffer (no need to pass the number).
-
-## Setup/Installation
-
-If you are using Packer, add:
-
-```lua
-use "krshrimali/nvim-autorunner"
--- depends on nvim-notify
-use "rcarriga/nvim-notify"
-```
-
-Please use a similar pattern for other plugin managers. Currently, the plugin doesn't have a `setup` function, but I'm working on that. For now, just adding it to your package should enable the features.
-
-**Adding to your shortcuts**: I like using `whichkey` for this, but feel free to have something else based on your needs. Checkout my whichkey shortcuts [here](https://github.com/krshrimali/nvim/blob/master/lua/user/whichkey.lua#L114).
-
-```lua
-a = {
-  name = "AutoRunner",
-  r = { "<cmd>AutoRunnerRun<cr>", "Run the command" },
-  t = { "<cmd>AutoRunnerToggle<cr>", "Toggle output window" },
-  e = { "<cmd>AutoRunnerEditFile<cr>", "Edit build file (if available in runtime directory)" },
-  a = { "<cmd>AutoRunnerAddCommand<cr>", "Add/change command" },
-  c = { "<cmd>AutoRunnerClearCommand<cr>", "Clear command" },
-  C = { "<cmd>AutoRunnerClearAll<cr>", "Clear all (command and buffers)" },
-  p = { "<cmd>AutoRunnerPrintCommand<cr>", "Print command" },
-},
-```
 
 ## Acknowledgements
 
