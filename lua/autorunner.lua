@@ -63,7 +63,7 @@ function A.toggle()
 		return true
 	end
 
-	if A.autorun_bufnr == -1 or check_not_in_bufs_list(A.autorun_bufnr) then
+	if A.autorun_bufnr == -1 then
 		-- If it's not -1, then it means a window is already opened, so just ignore
 		if A.autorun_data ~= "" then
 			call_autorun("", A.autorun_data)
@@ -71,6 +71,13 @@ function A.toggle()
 			call_autorun(A.command, "")
 		end
 		return
+  elseif check_not_in_bufs_list(A.autorun_bufnr) then
+    A.autorun_bufnr = -1
+    if A.autorun_data ~= "" then
+			call_autorun("", A.autorun_data)
+		else
+			call_autorun(A.command, "")
+		end
 	else
 		vim.api.nvim_notify("Buffer already opened with bufnr: " .. A.autorun_bufnr, vim.log.levels.INFO, {})
 	end
