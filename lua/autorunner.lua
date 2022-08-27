@@ -33,23 +33,21 @@ local function call_autorun(command, data)
 	end
 end
 
--- vim.api.nvim_create_autocmd({ "BufLeave" }, {
---   callback = function()
---     if vim.api.nvim_get_current_buf() == A.autorun_bufnr then
---       -- vim.api.nvim_buf_detach()
---       vim.api.nvim_buf_delete(A.autorun_bufnr, {
---         force = true,
---       })
---       A.autorun_bufnr = -1
---     end
---   end,
--- })
+vim.api.nvim_create_autocmd({ "BufLeave" }, {
+	callback = function()
+		if vim.api.nvim_get_current_buf() == A.autorun_bufnr then
+			vim.api.nvim_buf_delete(A.autorun_bufnr, {
+				force = false,
+			})
+			A.autorun_bufnr = -1
+		end
+	end,
+})
 
 function A.run()
-	-- vim.api.nvim_command("vnew")
-	-- call_autorun(vim.api.nvim_get_current_buf(), "./.buildme.sh")
+	A.autorun_data = ""
 	vim.api.nvim_create_augroup("autorun-krs", { clear = true })
-	call_autorun(A.command, "")
+	call_autorun(A.command, A.autorun_data)
 end
 
 function A.toggle()
@@ -65,26 +63,27 @@ function A.toggle()
 
 	if A.autorun_bufnr == -1 then
 		-- If it's not -1, then it means a window is already opened, so just ignore
-		if A.autorun_data ~= "" then
-			call_autorun("", A.autorun_data)
-		else
-			call_autorun(A.command, "")
-		end
+		-- if A.autorun_data ~= "" then
+		-- 	call_autorun("", A.autorun_data)
+		-- else
+		-- 	call_autorun(A.command, "")
+		-- end
+		call_autorun(A.command, A.autorun_data)
 		return
-  elseif check_not_in_bufs_list(A.autorun_bufnr) then
-    A.autorun_bufnr = -1
-    if A.autorun_data ~= "" then
-			call_autorun("", A.autorun_data)
-		else
-			call_autorun(A.command, "")
-		end
+	elseif check_not_in_bufs_list(A.autorun_bufnr) then
+		A.autorun_bufnr = -1
+		--   if A.autorun_data ~= "" then
+		-- 	call_autorun("", A.autorun_data)
+		-- else
+		-- 	call_autorun(A.command, "")
+		-- end
+		call_autorun(A.command, A.autorun_data)
 	else
 		vim.api.nvim_notify("Buffer already opened with bufnr: " .. A.autorun_bufnr, vim.log.levels.INFO, {})
 	end
 end
 
 function A.edit_file()
-	-- local ui = vim.api.nvim_list_uis()[1]
 	if A.command ~= "" then
 		-- Check if file is in the runtime dir
 		local files = vim.api.nvim_get_runtime_file(A.command, true)
@@ -99,8 +98,6 @@ function A.edit_file()
 end
 
 function A.clear_buffer()
-	-- if vim.api.nvim_get_current_buf() == A.autorun_bufnr then
-	-- vim.api.nvim_buf_detach()
 	if A.autorun_bufnr == -1 then
 		vim.api.nvim_notify("Buffer not opened yet, do :AutoRunnerToggle or :AutoRunnerRun", vim.log.levels.ERROR, {})
 		return
