@@ -33,16 +33,16 @@ local function call_autorun(command, data)
 	end
 end
 
-vim.api.nvim_create_autocmd({ "BufLeave" }, {
-	callback = function()
-		if vim.api.nvim_get_current_buf() == A.autorun_bufnr then
-			vim.api.nvim_buf_delete(A.autorun_bufnr, {
-				force = false,
-			})
-			A.autorun_bufnr = -1
-		end
-	end,
-})
+-- vim.api.nvim_create_autocmd({ "BufLeave" }, {
+-- 	callback = function()
+-- 		if vim.api.nvim_get_current_buf() == A.autorun_bufnr then
+-- 			vim.api.nvim_buf_delete(A.autorun_bufnr, {
+-- 				force = false,
+-- 			})
+-- 			A.autorun_bufnr = -1
+-- 		end
+-- 	end,
+-- })
 
 function A.run()
 	A.autorun_data = ""
