@@ -1,5 +1,5 @@
-# nvim-autorunner
-# Author: Kushashwa Ravi Shrimali (kushashwaravishrimali@gmail.com)
+" nvim-autorunner
+" Author: Kushashwa Ravi Shrimali (kushashwaravishrimali@gmail.com)
 
 if exists('g:loaded_autorunner')
   finish
