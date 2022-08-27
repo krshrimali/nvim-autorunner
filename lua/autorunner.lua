@@ -9,12 +9,18 @@ local function call_autorun(command, data)
 		vim.cmd("setlocal signcolumn=no nonumber")
 	end
 	if A.autorun_bufnr == -1 then
-    -- TODO: Add options here, for the type of split
+		-- TODO: Add options here, for the type of split
 		vim.api.nvim_command("vnew")
 		A.autorun_bufnr = vim.api.nvim_get_current_buf()
-    -- FIXME: This is probably (ore surely) bad, give users the access to this, maybe?
-    vim.api.nvim_buf_set_keymap(A.autorun_bufnr, "n", "q", ":lua require('autorunner').clear_buffer()<CR>", { noremap = true, silent = true })
-    vim.keymap.set("n", "<Esc>", A.clear_buffer, { noremap = true, silent = true })
+		-- FIXME: This is probably (ore surely) bad, give users the access to this, maybe?
+		vim.api.nvim_buf_set_keymap(
+			A.autorun_bufnr,
+			"n",
+			"q",
+			":lua require('autorunner').clear_buffer()<CR>",
+			{ noremap = true, silent = true }
+		)
+		vim.keymap.set("n", "<Esc>", A.clear_buffer, { noremap = true, silent = true })
 	end
 	vim.api.nvim_buf_call(A.autorun_bufnr, change_settings)
 	local append_data = function(_, _data)
@@ -37,6 +43,18 @@ local function call_autorun(command, data)
 			on_stdout = append_data,
 			on_stderr = append_data,
 		})
+	end
+end
+
+-- Source: https://stackoverflow.com/a/4991602
+local function check_if_file_exists(fname)
+	-- attempt to open the file
+	local f = io.open(fname, "r")
+	if f ~= nil then
+		io.close(f)
+		return true
+	else
+		return false
 	end
 end
 
@@ -80,13 +98,16 @@ end
 
 function A.edit_file()
 	if A.command ~= "" then
-		-- Check if file is in the runtime dir
-		local files = vim.api.nvim_get_runtime_file(A.command, true)
-		if #files == 0 then
-			vim.api.nvim_notify("Couldn't find " .. A.command .. " in the runtime directory", vim.log.levels.ERROR, {})
-			return
+		-- Check if file can be opened
+		if check_if_file_exists(A.command) then
+			vim.api.nvim_command("e " .. A.command)
+		else
+			vim.api.nvim_notify(
+				"File not found, path considered: " .. A.command .. ", if you want to change, use .add_command() method",
+				vim.log.levels.ERROR,
+				{}
+			)
 		end
-		vim.api.nvim_command("e " .. A.command)
 	else
 		vim.api.nvim_notify("Command not registered, use .add_command()", vim.log.levels.ERROR, {})
 	end
