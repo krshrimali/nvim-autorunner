@@ -53,17 +53,17 @@ function A.run()
 end
 
 function A.toggle()
-	local function check_in_bufs_list(bufnumber)
+	local function check_not_in_bufs_list(bufnumber)
 		local bufs = vim.api.nvim_list_bufs()
 		for _, l in ipairs(bufs) do
 			if l == bufnumber then
-				return true
+				return false
 			end
 		end
-		return false
+		return true
 	end
 
-	if A.autorun_bufnr == -1 or check_in_bufs_list(A.autorun_bufnr) then
+	if A.autorun_bufnr == -1 or check_not_in_bufs_list(A.autorun_bufnr) then
 		-- If it's not -1, then it means a window is already opened, so just ignore
 		if A.autorun_data ~= "" then
 			call_autorun("", A.autorun_data)
