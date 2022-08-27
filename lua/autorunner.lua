@@ -1,6 +1,7 @@
 A = {}
 A.autorun_bufnr = -1
 A.autorun_data = {}
+-- TODO: Let's create an option to create this file
 A.command = "./.buildme.sh"
 
 local function call_autorun(command, data)
@@ -8,8 +9,12 @@ local function call_autorun(command, data)
 		vim.cmd("setlocal signcolumn=no nonumber")
 	end
 	if A.autorun_bufnr == -1 then
+    -- TODO: Add options here, for the type of split
 		vim.api.nvim_command("vnew")
 		A.autorun_bufnr = vim.api.nvim_get_current_buf()
+    -- FIXME: This is probably (ore surely) bad, give users the access to this, maybe?
+    vim.api.nvim_buf_set_keymap(A.autorun_bufnr, "n", "q", ":lua require('autorunner').clear_buffer()<CR>", { noremap = true, silent = true })
+    vim.keymap.set("n", "<Esc>", A.clear_buffer, { noremap = true, silent = true })
 	end
 	vim.api.nvim_buf_call(A.autorun_bufnr, change_settings)
 	local append_data = function(_, _data)
@@ -111,11 +116,5 @@ end
 function A.print_command()
 	vim.api.nvim_notify("Command available: " .. A.command, vim.log.levels.INFO, {})
 end
-
--- Global mappings
-local opts = { noremap = true, silent = true }
-
-vim.keymap.set("n", "q", A.clear_buffer, opts)
-vim.keymap.set("n", "<Esc>", A.clear_buffer, opts)
 
 return A
