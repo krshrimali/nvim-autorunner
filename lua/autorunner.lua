@@ -4,7 +4,7 @@ A.autorun_data = {}
 -- TODO: Let's create an option to create this file
 A.command = "./.buildme.sh"
 A.current_term = nil
-A.term_size = 60
+A.term_size = 50
 A.term_direction = "vertical"
 
 local Terminal = require("toggleterm.terminal").Terminal
@@ -93,17 +93,22 @@ function A.term_run()
       insert_mappings = true,
       direction = tostring(A.term_direction),
       close_on_exit=true,
-      hidden=true,
+      size = A.term_size,
+      -- hidden=true,
     })
+    A.current_term:toggle()
+    A.current_term:clear()
+  elseif not A.current_term:is_open() then
+    A.current_term:toggle()
+    A.current_term:clear()
+  else
+    A.current_term:toggle()
     A.current_term:resize(A.term_size)
     A.current_term:toggle()
-    A.current_term:clear()
+    A.current_term:send(A.command, false)
+    return
   end
 
-  if not A.current_term:is_open() then
-    A.current_term:clear()
-    A.current_term:toggle()
-  end
   A.current_term:send(A.command, true)
 end
 
