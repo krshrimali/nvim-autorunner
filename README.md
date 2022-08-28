@@ -4,7 +4,7 @@ A NeoVim lightweight autorunner plugin, to compile your projects using a single 
 
 I'm currently working on v0.1 (beta release), and the issue tracker is [here: v0.1 tracker](https://github.com/krshrimali/nvim-autorunner/issues/1). In case you have anything to add/remove/change, please post your opinion here. A few major TODOs:
 
-* [ ] Add support for ToggleTerm - a much better terminal. (50% done) - use `AutoRunnerTermRun` and `AutoRunnerTermToggle`.
+* [ ] Add support for ToggleTerm - a much better terminal. (70% done), see: [file for all the available commands](https://github.com/krshrimali/nvim-autorunner/blob/main/plugin/autorunner.vim).
 * [ ] Fix syncing buffers for stderr and stdout (when not using ToggleTerm)
 * [ ] Documentation.
 * [ ] Allowing users to customize options.
