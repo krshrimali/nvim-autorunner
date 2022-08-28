@@ -6,6 +6,7 @@ A.command = "./.buildme.sh"
 A.current_term = nil
 A.term_size = 50
 A.term_direction = "vertical"
+A.bufnr = 0
 
 local Terminal = require("toggleterm.terminal").Terminal
 
@@ -85,20 +86,25 @@ function A._close_term()
 end
 
 function A.term_run()
+  require("toggleterm").setup {
+    start_in_insert=false,
+    on_exit = function() A.current_term = nil end,
+    terminal_mappings = true,
+    insert_mappings = true,
+    direction = tostring(A.term_direction),
+    close_on_exit=true,
+    size = A.term_size,
+  }
   if A.current_term == nil then
     A.current_term = Terminal:new({
-      start_in_insert=false,
-      on_exit = function() A.current_term = nil end,
-      terminal_mappings = true,
-      insert_mappings = true,
-      direction = tostring(A.term_direction),
-      close_on_exit=true,
-      size = A.term_size,
-      -- hidden=true,
+      display_name = A.command,
+      on_open = function() Terminal:set_mode("n") end
     })
     A.current_term:toggle()
     A.current_term:clear()
   elseif not A.current_term:is_open() then
+    A.current_term:toggle()
+    A.current_term:resize(A.term_size)
     A.current_term:toggle()
     A.current_term:clear()
   else
@@ -106,9 +112,11 @@ function A.term_run()
     A.current_term:resize(A.term_size)
     A.current_term:toggle()
     A.current_term:send(A.command, false)
+    A.term_bufnr = A.current_term.bufnr
     return
   end
 
+  A.term_bufnr = A.current_term.bufnr
   A.current_term:send(A.command, true)
 end
 
@@ -209,5 +217,12 @@ end
 function A.get_term_properties()
   notify_inform("Terminal direction: " .. A.term_direction .. " and Terminal size: " .. A.term_size)
 end
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "term://*",
+  callback = function()
+    Terminal:set_mode("n")
+  end
+})
 
 return A
