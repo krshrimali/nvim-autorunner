@@ -2,6 +2,8 @@
 
 A NeoVim lightweight autorunner plugin, to compile your projects using a single command.
 
+I'm currently working on v0.1 (beta release), and the issue tracker is [here: v0.1 tracker](https://github.com/krshrimali/nvim-autorunner/issues/1). In case you have anything to add/remove/change, please post your opinion here.
+
 ## Demo
 
 See the animation below for a quick demo.
