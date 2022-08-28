@@ -10,7 +10,7 @@ local function call_autorun(command, data)
     -- TODO: Add options here, for the type of split
     vim.api.nvim_command("vnew")
     A.autorun_bufnr = vim.api.nvim_get_current_buf()
-    -- FIXME: This is probably (ore surely) bad, give users the access to this, maybe?
+    -- FIXME: This is probably (or surely) bad, give users the access to this, maybe?
     vim.api.nvim_buf_set_keymap(
       A.autorun_bufnr,
       "n",
