@@ -3,9 +3,21 @@ A.autorun_bufnr = -1
 A.autorun_data = {}
 -- TODO: Let's create an option to create this file
 A.command = "./.buildme.sh"
+A.current_term = nil
+
+local Terminal = require("toggleterm.terminal").Terminal
+
+local append_data = function(_, _data)
+  if #_data ~= 0 then
+    for _, l in ipairs(_data) do
+      table.insert(A.autorun_data, l)
+    end
+    vim.api.nvim_buf_set_lines(A.autorun_bufnr, -1, -1, false, _data)
+  end
+end
 
 local function call_autorun(command, data)
-  local change_settings = function() vim.cmd("setlocal signcolumn=no nonumber") end
+  local change_settings = function() vim.cmd("setlocal signcolumn=no") end
   if A.autorun_bufnr == -1 then
     -- TODO: Add options here, for the type of split
     vim.api.nvim_command("vnew")
@@ -21,14 +33,6 @@ local function call_autorun(command, data)
     vim.keymap.set("n", "<Esc>", A.clear_buffer, { noremap = true, silent = true })
   end
   vim.api.nvim_buf_call(A.autorun_bufnr, change_settings)
-  local append_data = function(_, _data)
-    if #_data ~= 0 then
-      for _, l in ipairs(_data) do
-        table.insert(A.autorun_data, l)
-      end
-    end
-    vim.api.nvim_buf_set_lines(A.autorun_bufnr, -1, -1, false, _data)
-  end
 
   -- FIXME: The message here is personalized, for the plugin, I need to allow users to set it.
   vim.api.nvim_buf_set_lines(A.autorun_bufnr, 0, -1, false, { "OUTPUT from " .. A.command })
@@ -37,6 +41,7 @@ local function call_autorun(command, data)
     A.autorun_data = data
   else
     vim.fn.jobstart(command, {
+      stderr_buffered = true,
       stdout_buffered = true,
       on_stdout = append_data,
       on_stderr = append_data,
@@ -61,6 +66,64 @@ function A.run()
   vim.api.nvim_create_augroup("autorun-krs", { clear = true })
   call_autorun(A.command, A.autorun_data)
 end
+
+function _G.set_terminal_keymaps()
+  local opts = { noremap = true }
+  vim.api.nvim_buf_set_keymap(0, 't', '<esc>', [[<C-\><C-n>]], opts)
+  -- vim.api.nvim_buf_set_keymap(0, "t", "jk", [[<C-\><C-n>]], opts)
+  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
+  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
+  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
+  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
+end
+
+function A.term_run()
+  require('toggleterm').setup{
+    size=100,
+  }
+  if A.current_term ~= nil then
+    return
+  end
+  A.current_term = Terminal:new {
+    start_in_insert = false,
+    terminal_mappings = true,
+    insert_mappings = true,
+    direction = "vertical",
+  }
+
+  A.current_term:toggle()
+  A.current_term:clear()
+  A.current_term:send(A.command, true)
+end
+
+function A.term_toggle()
+  require('toggleterm').setup{
+    size=100,
+    persist_size=true,
+  }
+
+  if A.current_term == nil then
+    A.term_run()
+    -- A.current_term = Terminal:new {
+    --   start_in_insert = false,
+    --   terminal_mappings = true,
+    --   insert_mappings = true,
+    --   direction = "vertical",
+    -- }
+
+    -- A.current_term:toggle()
+    -- A.current_term:clear()
+    -- A.current_term:send(A.command, true)
+  elseif not A.current_term:is_open() then
+    A.current_term = nil
+    A.term_run()
+  else
+    A.current_term:toggle()
+    A.current_term = nil
+  end
+end
+
+vim.cmd "autocmd! TermOpen term://* lua set_terminal_keymaps()"
 
 function A.toggle()
   local function check_not_in_bufs_list(bufnumber)
