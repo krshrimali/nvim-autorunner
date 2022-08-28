@@ -70,11 +70,6 @@ end
 function _G.set_terminal_keymaps()
   local opts = { noremap = true }
   vim.api.nvim_buf_set_keymap(0, 't', '<esc>', [[<C-\><C-n>]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "jk", [[<C-\><C-n>]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
 end
 
 function A.term_run()
@@ -104,16 +99,6 @@ function A.term_toggle()
 
   if A.current_term == nil then
     A.term_run()
-    -- A.current_term = Terminal:new {
-    --   start_in_insert = false,
-    --   terminal_mappings = true,
-    --   insert_mappings = true,
-    --   direction = "vertical",
-    -- }
-
-    -- A.current_term:toggle()
-    -- A.current_term:clear()
-    -- A.current_term:send(A.command, true)
   elseif not A.current_term:is_open() then
     A.current_term = nil
     A.term_run()
