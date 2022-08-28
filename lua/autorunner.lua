@@ -4,8 +4,15 @@ A.autorun_data = {}
 -- TODO: Let's create an option to create this file
 A.command = "./.buildme.sh"
 A.current_term = nil
+A.term_size = 60
+A.term_direction = "vertical"
 
 local Terminal = require("toggleterm.terminal").Terminal
+
+local notify_inform = function(msg, opts)
+  local opt = opts or vim.log.levels.INFO
+  vim.api.nvim_notify(msg, opt, {})
+end
 
 local append_data = function(_, _data)
   if #_data ~= 0 then
@@ -69,51 +76,40 @@ end
 
 function _G.set_terminal_keymaps()
   local opts = { noremap = true }
-  vim.api.nvim_buf_set_keymap(0, 't', '<esc>', [[<C-\><C-n>]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "jk", [[<C-\><C-n>]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
-  -- vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
+  vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
+end
+
+function A._close_term()
+  A.current_term:close()
+  A.current_term = nil
 end
 
 function A.term_run()
-  require('toggleterm').setup{
-    size=100,
-  }
-  if A.current_term ~= nil then
-    return
+  if A.current_term == nil then
+    A.current_term = Terminal:new({
+      start_in_insert=false,
+      on_exit = function() A.current_term = nil end,
+      terminal_mappings = true,
+      insert_mappings = true,
+      direction = tostring(A.term_direction),
+      close_on_exit=true,
+      hidden=true,
+    })
+    A.current_term:resize(A.term_size)
+    A.current_term:toggle()
+    A.current_term:clear()
   end
-  A.current_term = Terminal:new {
-    start_in_insert = false,
-    terminal_mappings = true,
-    insert_mappings = true,
-    direction = "vertical",
-  }
 
-  A.current_term:toggle()
-  A.current_term:clear()
+  if not A.current_term:is_open() then
+    A.current_term:clear()
+    A.current_term:toggle()
+  end
   A.current_term:send(A.command, true)
 end
 
 function A.term_toggle()
-  require('toggleterm').setup{
-    size=100,
-    persist_size=true,
-  }
-
   if A.current_term == nil then
     A.term_run()
-    -- A.current_term = Terminal:new {
-    --   start_in_insert = false,
-    --   terminal_mappings = true,
-    --   insert_mappings = true,
-    --   direction = "vertical",
-    -- }
-
-    -- A.current_term:toggle()
-    -- A.current_term:clear()
-    -- A.current_term:send(A.command, true)
   elseif not A.current_term:is_open() then
     A.current_term = nil
     A.term_run()
@@ -123,7 +119,7 @@ function A.term_toggle()
   end
 end
 
-vim.cmd "autocmd! TermOpen term://* lua set_terminal_keymaps()"
+vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
 
 function A.toggle()
   local function check_not_in_bufs_list(bufnumber)
@@ -190,6 +186,23 @@ end
 
 function A.print_command()
   vim.api.nvim_notify("Command available: " .. A.command, vim.log.levels.INFO, {})
+end
+
+function A.set_term_size()
+  -- TODO: Add a check if it's valid - directly converting to a number is not right
+  A.term_size = tonumber(vim.fn.input("Input size for your current session: "))
+  notify_inform("Size of your terminal is set to: " .. tostring(A.term_size))
+end
+
+function A.set_term_direction()
+  -- TODO: Add a check if it's valid
+  A.term_direction =
+    vim.fn.input("Input direction for your current session: (horizontal/float/vertical) ")
+  notify_inform("direction of your terminal is set to: " .. tostring(A.term_direction))
+end
+
+function A.get_term_properties()
+  notify_inform("Terminal direction: " .. A.term_direction .. " and Terminal size: " .. A.term_size)
 end
 
 return A
