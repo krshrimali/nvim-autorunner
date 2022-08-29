@@ -13,6 +13,12 @@ I'm currently working on v0.1 (beta release), and the issue tracker is [here: v0
 
 See the animation below for a quick demo.
 
+**Using ToggleTerm:** (beta release)
+
+<img src="readme/ToggleTerm-AnimationDemo.gif"/>
+
+**Using NeoVim Buffer:**
+
 <img src="readme/AutoRunner.gif"/>
 
 The plugin is also explained [here on my YouTube Channel](https://youtu.be/1tR_mrQXhJg).
